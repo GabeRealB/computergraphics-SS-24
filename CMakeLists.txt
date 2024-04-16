@@ -8,7 +8,8 @@ file(GLOB_RECURSE APP_SRC
     src/*.cpp
 )
 
-add_executable(app ${APP_SRC})
+add_executable(app ${APP_SRC}
+        src/Shader.hpp)
 target_link_libraries(app glad glfw glm imgui stb_image)
 set_target_properties(app PROPERTIES CXX_STANDARD 17)
 
