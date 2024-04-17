@@ -29,7 +29,7 @@ int main()
 
     constexpr int WIDTH = 800;
     constexpr int HEIGHT = 600;
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Computer Graphics", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Computer Graphics", NULL, NULL);
     glfwMakeContextCurrent(window);
     if (window == nullptr) {
         exit_error("Could not create GLFW window");
