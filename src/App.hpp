@@ -48,7 +48,7 @@ public:
         glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * g_vertex_buffer_data.size(), g_vertex_buffer_data.data(),
                      GL_STATIC_DRAW);
 
-        programID = Shader::loadShaders(to_resource_path("vertex0.glsl").c_str(), to_resource_path("fragment0.glsl").c_str());
+        programID = Shader::loadShaders(to_resource_path("vertex0.glsl"), to_resource_path("fragment0.glsl"));
     }
 
     void draw(GLFWwindow *window) {
