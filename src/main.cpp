@@ -10,8 +10,7 @@
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-[[noreturn]]
-void exit_error(const char* error)
+[[noreturn]] void exit_error(const char* error)
 {
     std::cerr << error << std::endl;
     exit(EXIT_FAILURE);
