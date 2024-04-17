@@ -28,6 +28,19 @@ public:
             0.0f, 1.0f, 0.0f, // Third vertex of a triangle (top-center)
         };
 
+        houseVertexBufferData = {
+            // Coordinates for "Haus vom Niklaus" (a simple house shape)
+            -0.5f, -0.5f, 0.0f, // A (bottom-left)
+            0.5f, -0.5f, 0.0f, // B (bottom-right)
+            -0.5f, 0.5f, 0.0f, // C (top-left)
+            0.5f, 0.5f, 0.0f, // D (top-right)
+            0.0f, 1.0f, 0.0f, // E (roof peak)
+            -0.5f, 0.5f, 0.0f, // C (repeated for drawing continuity)
+            -0.5f, -0.5f, 0.0f, // A (repeated for drawing continuity)
+            0.5f, 0.5f, 0.0f, // D (repeated for drawing continuity)
+            0.5f, -0.5f, 0.0f, // B (repeated for drawing continuity)
+        };
+
         g_vertex_buffer_data = triangleVertexBufferData;
     }
 
@@ -103,6 +116,19 @@ public:
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
+        // Switch vertex buffer data based on key presses to toggle between triangle and house shapes
+        if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+            g_vertex_buffer_data = triangleVertexBufferData;
+            drawingMode = GL_TRIANGLES;
+            verticesCount = 3;
+            updateVertexBuffer();
+        }
+        if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+            g_vertex_buffer_data = houseVertexBufferData;
+            drawingMode = GL_LINE_STRIP;
+            verticesCount = 9;
+            updateVertexBuffer();
+        }
     }
 
     void on_resize(GLFWwindow* window, int width, int height)
@@ -114,6 +140,7 @@ public:
 private:
     std::vector<GLfloat> g_vertex_buffer_data;
     std::vector<GLfloat> triangleVertexBufferData;
+    std::vector<GLfloat> houseVertexBufferData;
 
     GLuint vertexbuffer; // OpenGL ID for the vertex buffer
     GLuint programID; // OpenGL ID for the shader program
