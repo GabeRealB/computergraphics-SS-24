@@ -50,7 +50,9 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    glViewport(0, 0, WIDTH, HEIGHT);
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
 
     App app {};
     glfwSetWindowUserPointer(window, &app);
