@@ -2,11 +2,8 @@
 #version 330 core
 
 layout(location = 0) in vec3 vertexPosition_modelspace;
-
-out vec4 fragmentColor; // Output color to the fragment shader
+uniform mat4 MVP; // Model-View-Projection matrix for our object
 
 void main(){
-    gl_Position.xyz = vertexPosition_modelspace;
-    gl_Position.w = 1.0;
-    fragmentColor = vec4(1, 0, 0, 1); // Pass color to the fragment shader
+    gl_Position = MVP * vec4(vertexPosition_modelspace, 1.0);
 }
