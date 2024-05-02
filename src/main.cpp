@@ -26,7 +26,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-    constexpr int WIDTH = 800;
+    constexpr int WIDTH = 600;
     constexpr int HEIGHT = 600;
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Computer Graphics", NULL, NULL);
     glfwMakeContextCurrent(window);
