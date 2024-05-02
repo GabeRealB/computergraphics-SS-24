@@ -21,7 +21,8 @@
 
 class App {
 public:
-    App() {
+    App()
+    {
         triangleVertexBufferData = {
             -1.0f, -1.0f, 0.0f, // First vertex of a triangle (bottom-left)
             1.0f, -1.0f, 0.0f, // Second vertex of a triangle (bottom-right)
