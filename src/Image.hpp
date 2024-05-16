@@ -94,6 +94,18 @@ public:
         return this->m_channels;
     }
 
+    void setPixelChannel(int x, int y, int channel, unsigned char value) {
+        if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+            throw std::runtime_error { "x/y out of bounds." };
+        }
+        if (channel < 0 || channel >= m_channels) {
+            throw std::runtime_error { "Channel out of bounds." };
+            return;
+        }
+        int index = (y * m_width + x) * m_channels + channel;
+        m_data[index] = value;
+    }
+
 private:
     std::unique_ptr<unsigned char[]> m_data;
     int m_width;
