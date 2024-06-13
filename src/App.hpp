@@ -25,12 +25,15 @@
 class App {
 public:
     App()
-        : enable_depth_test { true }
+        : use_dice_texture { true }
         , vertex_array_object { 0 }
         , position_vertex_buffer { 0 }
-        , color_vertex_buffer { 0 }
+        , uv_vertex_buffer { 0 }
+        , dice_texture { 0 }
+        , grid_texture { 0 }
         , program_id { 0 }
         , mvp_matrix_location { 0 }
+        , texture_location { 0 }
         , object_transform {}
         , vp_matrix {}
     {
@@ -44,6 +47,9 @@ public:
         // Create our object
         this->initialize_vao();
 
+        // Create the textures.
+        this->initialize_textures();
+
         // Place the object
         this->initialize_models();
 
@@ -56,6 +62,7 @@ public:
         // Loads and compiles shaders from files and links them into a program
         this->program_id = Shader::loadShaders(to_resource_path("vertex0.glsl"), to_resource_path("fragment0.glsl"));
         this->mvp_matrix_location = glGetUniformLocation(this->program_id, "mvp_matrix");
+        this->texture_location = glGetUniformLocation(this->program_id, "textureSampler");
     }
 
     void initialize_vao()
@@ -105,44 +112,44 @@ public:
             glm::vec3 { 1.0f, -1.0f, 1.0f },
         };
 
-        // Define one color for each vertex
-        static glm::vec3 colors[] = {
-            glm::vec3 { 0.583f, 0.771f, 0.014f },
-            glm::vec3 { 0.609f, 0.115f, 0.436f },
-            glm::vec3 { 0.327f, 0.483f, 0.844f },
-            glm::vec3 { 0.822f, 0.569f, 0.201f },
-            glm::vec3 { 0.435f, 0.602f, 0.223f },
-            glm::vec3 { 0.310f, 0.747f, 0.185f },
-            glm::vec3 { 0.597f, 0.770f, 0.761f },
-            glm::vec3 { 0.559f, 0.436f, 0.730f },
-            glm::vec3 { 0.359f, 0.583f, 0.152f },
-            glm::vec3 { 0.483f, 0.596f, 0.789f },
-            glm::vec3 { 0.559f, 0.861f, 0.639f },
-            glm::vec3 { 0.195f, 0.548f, 0.859f },
-            glm::vec3 { 0.014f, 0.184f, 0.576f },
-            glm::vec3 { 0.771f, 0.328f, 0.970f },
-            glm::vec3 { 0.406f, 0.615f, 0.116f },
-            glm::vec3 { 0.676f, 0.977f, 0.133f },
-            glm::vec3 { 0.971f, 0.572f, 0.833f },
-            glm::vec3 { 0.140f, 0.616f, 0.489f },
-            glm::vec3 { 0.997f, 0.513f, 0.064f },
-            glm::vec3 { 0.945f, 0.719f, 0.592f },
-            glm::vec3 { 0.543f, 0.021f, 0.978f },
-            glm::vec3 { 0.279f, 0.317f, 0.505f },
-            glm::vec3 { 0.167f, 0.620f, 0.077f },
-            glm::vec3 { 0.347f, 0.857f, 0.137f },
-            glm::vec3 { 0.055f, 0.953f, 0.042f },
-            glm::vec3 { 0.714f, 0.505f, 0.345f },
-            glm::vec3 { 0.783f, 0.290f, 0.734f },
-            glm::vec3 { 0.722f, 0.645f, 0.174f },
-            glm::vec3 { 0.302f, 0.455f, 0.848f },
-            glm::vec3 { 0.225f, 0.587f, 0.040f },
-            glm::vec3 { 0.517f, 0.713f, 0.338f },
-            glm::vec3 { 0.053f, 0.959f, 0.120f },
-            glm::vec3 { 0.393f, 0.621f, 0.362f },
-            glm::vec3 { 0.673f, 0.211f, 0.457f },
-            glm::vec3 { 0.820f, 0.883f, 0.371f },
-            glm::vec3 { 0.982f, 0.099f, 0.879f },
+        // Define one UV coordinate for each vertex.
+        static glm::vec2 uvs[] = {
+            glm::vec2 { 0.000059f, 1.0f - 0.000004f },
+            glm::vec2 { 0.000103f, 1.0f - 0.336048f },
+            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
+            glm::vec2 { 1.000023f, 1.0f - 0.000013f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            glm::vec2 { 0.999958f, 1.0f - 0.336064f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
+            glm::vec2 { 0.667969f, 1.0f - 0.671889f },
+            glm::vec2 { 1.000023f, 1.0f - 0.000013f },
+            glm::vec2 { 0.668104f, 1.0f - 0.000013f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            glm::vec2 { 0.000059f, 1.0f - 0.000004f },
+            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
+            glm::vec2 { 0.336098f, 1.0f - 0.000071f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
+            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
+            glm::vec2 { 1.000004f, 1.0f - 0.671847f },
+            glm::vec2 { 0.999958f, 1.0f - 0.336064f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            glm::vec2 { 0.668104f, 1.0f - 0.000013f },
+            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
+            glm::vec2 { 0.668104f, 1.0f - 0.000013f },
+            glm::vec2 { 0.336098f, 1.0f - 0.000071f },
+            glm::vec2 { 0.000103f, 1.0f - 0.336048f },
+            glm::vec2 { 0.000004f, 1.0f - 0.671870f },
+            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
+            glm::vec2 { 0.000103f, 1.0f - 0.336048f },
+            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
+            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
+            glm::vec2 { 0.667969f, 1.0f - 0.671889f },
+            glm::vec2 { 1.000004f, 1.0f - 0.671847f },
+            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
         };
 
         // Generates a buffer for the vertices
@@ -163,18 +170,18 @@ public:
             (void*)0 // Specifies a pointer to the start of the first component of the first generic vertex attribute in the array
         );
 
-        // Generates a buffer for the colors
-        glGenBuffers(1, &this->color_vertex_buffer);
+        // Generates a buffer for the uvs
+        glGenBuffers(1, &this->uv_vertex_buffer);
         // Binds the newly created buffer to the GL_ARRAY_BUFFER target
-        glBindBuffer(GL_ARRAY_BUFFER, this->color_vertex_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, this->uv_vertex_buffer);
         // Creates and initializes the buffer object's data store with vertex data
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), glm::value_ptr(colors[0]), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), glm::value_ptr(uvs[0]), GL_STATIC_DRAW);
 
         // Bind the Vertex Buffer to the VAO.
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(
             1, // Specifies the index of the generic vertex attribute
-            3, // Specifies the number of components per generic vertex attribute
+            2, // Specifies the number of components per generic vertex attribute
             GL_FLOAT, // Specifies the data type of each component
             GL_FALSE, // Specifies whether fixed-point data values should be normalized
             0, // Specifies the byte offset between consecutive generic vertex attributes
@@ -184,6 +191,42 @@ public:
         // Unbind the Vertex Buffer and VAO.
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+    }
+
+    void initialize_textures()
+    {
+        // Load the two images.
+        Image dice_image { to_resource_path("dice.tga") };
+        Image grid_image { to_resource_path("grid.bmp") };
+
+        // Generate one texture for the dice image.
+        glGenTextures(1, &this->dice_texture);
+        // Binds the newly created texture to the GL_TEXTURE_2D target.
+        glBindTexture(GL_TEXTURE_2D, this->dice_texture);
+        // Upload the image data to the texture.
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dice_image.width(), dice_image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, dice_image.data());
+        // Set the texture options.
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        // Generate one texture for the grid image.
+        glGenTextures(1, &this->grid_texture);
+        // Binds the newly created texture to the GL_TEXTURE_2D target.
+        glBindTexture(GL_TEXTURE_2D, this->grid_texture);
+        // Upload the image data to the texture.
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, grid_image.width(), grid_image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, grid_image.data());
+        // Set the texture options.
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        // Unbind all textures.
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void initialize_models()
@@ -216,9 +259,7 @@ public:
         (void)window;
 
         // Enable the depth test.
-        if (this->enable_depth_test) {
-            glEnable(GL_DEPTH_TEST);
-        }
+        glEnable(GL_DEPTH_TEST);
 
         // Set the background color
         glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -239,13 +280,25 @@ public:
         // Upload the model matrix
         glUniformMatrix4fv(this->mvp_matrix_location, 1, GL_FALSE, glm::value_ptr(mvp_mat));
 
+        // Set the location of the texture.
+        glUniform1i(this->texture_location, 0);
+
+        // Bind the texture to the first slot.
+        glActiveTexture(GL_TEXTURE0);
+        if (this->use_dice_texture) {
+            glBindTexture(GL_TEXTURE_2D, this->dice_texture);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, this->grid_texture);
+        }
+
         // Renders primitives from array data
         glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
+        // Unbind the texture.
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         // Disable the depth test after rendering.
-        if (this->enable_depth_test) {
-            glDisable(GL_DEPTH_TEST);
-        }
+        glDisable(GL_DEPTH_TEST);
     }
 
     void on_key_change(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -256,8 +309,7 @@ public:
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, GL_TRUE);
         } else if (key == GLFW_KEY_ENTER && action == GLFW_RELEASE) {
-            // Flip the flag.
-            this->enable_depth_test = !this->enable_depth_test;
+            this->use_dice_texture = !this->use_dice_texture;
         }
     }
 
@@ -269,13 +321,16 @@ public:
     }
 
 private:
-    bool enable_depth_test; // Whether to enable depth testing
+    bool use_dice_texture;
 
     GLuint vertex_array_object; // OpenGL ID for the vertex array object
     GLuint position_vertex_buffer; // OpenGL ID for the position vbo
-    GLuint color_vertex_buffer; // OpenGL ID for the color vbo
+    GLuint uv_vertex_buffer; // OpenGL ID for the UV vbo
+    GLuint dice_texture; // OpenGL ID for the dice texture
+    GLuint grid_texture; // OpenGL ID for the grid texture
     GLuint program_id; // OpenGL ID for the shader program
     GLuint mvp_matrix_location; // Location of the uniform
+    GLuint texture_location; // Location of the texture uniform
 
     Transform object_transform; // World transformation of the cube
     glm::mat4 vp_matrix; // View-Projection matrix
