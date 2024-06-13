@@ -1,12 +1,8 @@
-// Vertex Shader
-#version 330 core
+#version 410 core
 
-layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 0) in vec2 position;
 
-out vec4 fragmentColor; // Output color to the fragment shader
-
-void main(){
-    gl_Position.xyz = vertexPosition_modelspace;
-    gl_Position.w = 1.0;
-    fragmentColor = vec4(1, 0, 0, 1); // Pass color to the fragment shader
+void main()
+{
+    gl_Position = vec4(position, 0.0, 1.0);
 }
