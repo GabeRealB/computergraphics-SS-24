@@ -6,14 +6,11 @@
 #ifdef _MSVC_VER
 #pragma warning(pop)
 #endif
+#include "ObjectLoader.hpp"
 #include <optional>
-
-struct Triangle {
-    glm::vec2 x1;
-    glm::vec2 x2;
-    glm::vec2 x3;
-    glm::vec3 color;
-};
+#include <vector>
+#include <thread>
+#include <algorithm>
 
 class Scanline {
 public:
@@ -36,9 +33,9 @@ public:
     static std::array<std::optional<glm::vec2>, 2> triangleScanlineIntersection(float y, const Triangle& triangle)
     {
         std::array<std::optional<glm::vec2>, 3> tempIntersections = {
-            lineScanlineIntersection(y, triangle.x1, triangle.x2),
-            lineScanlineIntersection(y, triangle.x2, triangle.x3),
-            lineScanlineIntersection(y, triangle.x3, triangle.x1)
+            lineScanlineIntersection(y, triangle.v1, triangle.v2),
+            lineScanlineIntersection(y, triangle.v2, triangle.v3),
+            lineScanlineIntersection(y, triangle.v3, triangle.v1)
         };
 
         std::array<std::optional<glm::vec2>, 2> intersections;
@@ -61,34 +58,59 @@ public:
         return intersections;
     }
 
-    static void draw(Image& image, const std::vector<Triangle>& triangles)
-    {
+    static void drawRow(Image& image, const std::vector<Triangle>& triangles, int row) {
         float glPixelHeight = 2.0f / image.height(); // Calculate the height of each pixel in OpenGL coordinates.
+        float yPos = -1.0f + (row + 0.5f) * glPixelHeight; // Calculate the y position of the current row in OpenGL coordinates.
 
-        for (int row = 0; row < image.height(); ++row) {
-            float yPos = -1.0f + (row + 0.5f) * glPixelHeight; // Calculate the y position of the current row in OpenGL coordinates.
-
-            for (const auto& triangle : triangles) {
-                auto intersections = triangleScanlineIntersection(yPos, triangle); // Find the intersections of the scanline with the triangle.
-                if (!intersections[0].has_value()) {
-                    continue; // Skip if there are no intersections.
-                }
-
-                int xStart = std::max(0, static_cast<int>(intersections[0]->x * image.width() / 2.0f + image.width() / 2)); // Calculate and clamp xStart.
-                int xEnd = intersections[1].has_value()
-                    ? std::min(image.width() - 1, static_cast<int>(intersections[1]->x * image.width() / 2.0f + image.width() / 2))
-                    : image.width() - 1; // Calculate and clamp xEnd.
-
-                if (xStart >= image.width() || xEnd < 0) {
-                    continue; // Skip if the intersection is outside the image.
-                }
-
-                for (int x = xStart; x <= xEnd; ++x) {
-                    image.setPixelChannel(x, row, 0, triangle.color.x); // Set the red channel of the pixel.
-                    image.setPixelChannel(x, row, 1, triangle.color.y); // Set the green channel of the pixel.
-                    image.setPixelChannel(x, row, 2, triangle.color.z); // Set the blue channel of the pixel.
-                }
+        for (const auto& triangle : triangles) {
+            auto intersections = triangleScanlineIntersection(yPos, triangle); // Find the intersections of the scanline with the triangle.
+            if (!intersections[0].has_value()) {
+                continue; // Skip if there are no intersections.
             }
+
+            int xStart = std::max(0, static_cast<int>(intersections[0]->x * image.width() / 2.0f + image.width() / 2)); // Calculate and clamp xStart.
+            int xEnd = intersections[1].has_value()
+                ? std::min(image.width() - 1, static_cast<int>(intersections[1]->x * image.width() / 2.0f + image.width() / 2))
+                : image.width() - 1; // Calculate and clamp xEnd.
+
+            if (xStart >= image.width() || xEnd < 0) {
+                continue; // Skip if the intersection is outside the image.
+            }
+
+            for (int x = xStart; x <= xEnd; ++x) {
+                image.setPixelChannel(x, row, 0, triangle.color.x); // Set the red channel of the pixel.
+                image.setPixelChannel(x, row, 1, triangle.color.y); // Set the green channel of the pixel.
+                image.setPixelChannel(x, row, 2, triangle.color.z); // Set the blue channel of the pixel.
+            }
+        }
+    }
+
+    static void draw(Image& image, const std::vector<Triangle>& triangles) {
+        const int numThreads = std::thread::hardware_concurrency();
+        std::vector<std::thread> threads;
+
+        int rowsPerThread = image.height() / numThreads;
+        int remainingRows = image.height() % numThreads;
+
+        int startRow = 0;
+
+        for (int i = 0; i < numThreads; ++i) {
+            int endRow = startRow + rowsPerThread + (remainingRows > 0 ? 1 : 0);
+            if (remainingRows > 0) {
+                --remainingRows;
+            }
+
+            threads.emplace_back([&, startRow, endRow]() {
+                for (int row = startRow; row < endRow; ++row) {
+                    drawRow(image, triangles, row);
+                }
+            });
+
+            startRow = endRow;
+        }
+
+        for (auto& thread : threads) {
+            thread.join();
         }
     }
 };

@@ -14,8 +14,10 @@
 #endif
 // ImGUI
 #include <imgui.h>
+#include <iostream>
 
 #include "Image.hpp"
+#include "ObjectLoader.hpp"
 #include "Resources.hpp"
 #include "Scanline.hpp"
 
@@ -25,22 +27,11 @@ public:
         : framebuffer(1, 1, 1)
         , triangles()
     {
-        triangles.push_back(Triangle {
-            glm::vec2(0.2f, 0.5f),
-            glm::vec2(0.8f, 0.2f),
-            glm::vec2(0.5f, 1.0f),
-            glm::vec3(255.0f, 0.0f, 0.0f) });
-        triangles.push_back(Triangle {
-            glm::vec2(0.1f, -0.9f),
-            glm::vec2(0.7f, -0.5f),
-            glm::vec2(0.4f, -0.1f),
-            glm::vec3(0.0f, 255.0f, 0.0f) });
-
-        triangles.push_back(Triangle {
-            glm::vec2(-0.8f, 0.2f),
-            glm::vec2(-0.2f, 0.3f),
-            glm::vec2(-0.6f, 0.9f),
-            glm::vec3(0.0f, 0.0f, 255.0f) });
+        auto path = to_resource_path("cube.obj");
+        bool success = loadOBJ(path, triangles);
+        if(!success) {
+            std::cerr << "Failed to load OBJ file at " << path << std::endl;
+        }
     }
 
     void updateFramebuffer(GLFWwindow* window)
@@ -63,6 +54,9 @@ public:
 
         Scanline::draw(framebuffer, triangles);
 
+        Image* framebuffer2 = &framebuffer;
+
+
         // create a texture for pixel data
         GLuint texture;
         glGenTextures(1, &texture);
@@ -70,6 +64,8 @@ public:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, framebuffer.width(), framebuffer.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, framebuffer.data());
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
         // generate framebuffer
         GLuint fbo;
