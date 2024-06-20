@@ -17,6 +17,9 @@
 // ImGUI
 #include <imgui.h>
 
+// Time
+#include <chrono>
+
 #include "Image.hpp"
 #include "Resources.hpp"
 #include "Shader.hpp"
@@ -26,6 +29,7 @@ class App {
 public:
     App()
         : use_dice_texture { true }
+        , last_draw { std::chrono::steady_clock::now() }
         , vertex_array_object { 0 }
         , position_vertex_buffer { 0 }
         , uv_vertex_buffer { 0 }
@@ -74,82 +78,106 @@ public:
 
         // Define the vertices for the unit cube
         static glm::vec3 vertices[] = {
-            glm::vec3 { -1.0f, -1.0f, -1.0f },
-            glm::vec3 { -1.0f, -1.0f, 1.0f },
-            glm::vec3 { -1.0f, 1.0f, 1.0f },
-            glm::vec3 { 1.0f, 1.0f, -1.0f },
-            glm::vec3 { -1.0f, -1.0f, -1.0f },
-            glm::vec3 { -1.0f, 1.0f, -1.0f },
-            glm::vec3 { 1.0f, -1.0f, 1.0f },
-            glm::vec3 { -1.0f, -1.0f, -1.0f },
-            glm::vec3 { 1.0f, -1.0f, -1.0f },
-            glm::vec3 { 1.0f, 1.0f, -1.0f },
-            glm::vec3 { 1.0f, -1.0f, -1.0f },
-            glm::vec3 { -1.0f, -1.0f, -1.0f },
-            glm::vec3 { -1.0f, -1.0f, -1.0f },
-            glm::vec3 { -1.0f, 1.0f, 1.0f },
-            glm::vec3 { -1.0f, 1.0f, -1.0f },
-            glm::vec3 { 1.0f, -1.0f, 1.0f },
-            glm::vec3 { -1.0f, -1.0f, 1.0f },
-            glm::vec3 { -1.0f, -1.0f, -1.0f },
-            glm::vec3 { -1.0f, 1.0f, 1.0f },
+            // 1
             glm::vec3 { -1.0f, -1.0f, 1.0f },
             glm::vec3 { 1.0f, -1.0f, 1.0f },
             glm::vec3 { 1.0f, 1.0f, 1.0f },
-            glm::vec3 { 1.0f, -1.0f, -1.0f },
-            glm::vec3 { 1.0f, 1.0f, -1.0f },
-            glm::vec3 { 1.0f, -1.0f, -1.0f },
-            glm::vec3 { 1.0f, 1.0f, 1.0f },
-            glm::vec3 { 1.0f, -1.0f, 1.0f },
-            glm::vec3 { 1.0f, 1.0f, 1.0f },
-            glm::vec3 { 1.0f, 1.0f, -1.0f },
-            glm::vec3 { -1.0f, 1.0f, -1.0f },
-            glm::vec3 { 1.0f, 1.0f, 1.0f },
-            glm::vec3 { -1.0f, 1.0f, -1.0f },
-            glm::vec3 { -1.0f, 1.0f, 1.0f },
+            //
+            glm::vec3 { -1.0f, -1.0f, 1.0f },
             glm::vec3 { 1.0f, 1.0f, 1.0f },
             glm::vec3 { -1.0f, 1.0f, 1.0f },
+            // 2
             glm::vec3 { 1.0f, -1.0f, 1.0f },
+            glm::vec3 { 1.0f, -1.0f, -1.0f },
+            glm::vec3 { 1.0f, 1.0f, -1.0f },
+            //
+            glm::vec3 { 1.0f, -1.0f, 1.0f },
+            glm::vec3 { 1.0f, 1.0f, -1.0f },
+            glm::vec3 { 1.0f, 1.0f, 1.0f },
+            // 3
+            glm::vec3 { -1.0f, 1.0f, 1.0f },
+            glm::vec3 { 1.0f, 1.0f, 1.0f },
+            glm::vec3 { 1.0f, 1.0f, -1.0f },
+            //
+            glm::vec3 { -1.0f, 1.0f, 1.0f },
+            glm::vec3 { 1.0f, 1.0f, -1.0f },
+            glm::vec3 { -1.0f, 1.0f, -1.0f },
+            // 4
+            glm::vec3 { -1.0f, -1.0f, -1.0f },
+            glm::vec3 { 1.0f, -1.0f, -1.0f },
+            glm::vec3 { 1.0f, -1.0f, 1.0f },
+            //
+            glm::vec3 { -1.0f, -1.0f, -1.0f },
+            glm::vec3 { 1.0f, -1.0f, 1.0f },
+            glm::vec3 { -1.0f, -1.0f, 1.0f },
+            // 5
+            glm::vec3 { -1.0f, -1.0f, -1.0f },
+            glm::vec3 { -1.0f, -1.0f, 1.0f },
+            glm::vec3 { -1.0f, 1.0f, 1.0f },
+            //
+            glm::vec3 { -1.0f, -1.0f, -1.0f },
+            glm::vec3 { -1.0f, 1.0f, 1.0f },
+            glm::vec3 { -1.0f, 1.0f, -1.0f },
+            // 6
+            glm::vec3 { -1.0f, 1.0f, -1.0f },
+            glm::vec3 { 1.0f, 1.0f, -1.0f },
+            glm::vec3 { 1.0f, -1.0f, -1.0f },
+            //
+            glm::vec3 { -1.0f, 1.0f, -1.0f },
+            glm::vec3 { 1.0f, -1.0f, -1.0f },
+            glm::vec3 { -1.0f, -1.0f, -1.0f },
         };
 
         // Define one UV coordinate for each vertex.
         static glm::vec2 uvs[] = {
-            glm::vec2 { 0.000059f, 1.0f - 0.000004f },
-            glm::vec2 { 0.000103f, 1.0f - 0.336048f },
-            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
-            glm::vec2 { 1.000023f, 1.0f - 0.000013f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
-            glm::vec2 { 0.999958f, 1.0f - 0.336064f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
-            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
-            glm::vec2 { 0.667969f, 1.0f - 0.671889f },
-            glm::vec2 { 1.000023f, 1.0f - 0.000013f },
-            glm::vec2 { 0.668104f, 1.0f - 0.000013f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
-            glm::vec2 { 0.000059f, 1.0f - 0.000004f },
-            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
-            glm::vec2 { 0.336098f, 1.0f - 0.000071f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
-            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
-            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
-            glm::vec2 { 1.000004f, 1.0f - 0.671847f },
-            glm::vec2 { 0.999958f, 1.0f - 0.336064f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
-            glm::vec2 { 0.668104f, 1.0f - 0.000013f },
-            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
-            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
-            glm::vec2 { 0.668104f, 1.0f - 0.000013f },
-            glm::vec2 { 0.336098f, 1.0f - 0.000071f },
-            glm::vec2 { 0.000103f, 1.0f - 0.336048f },
-            glm::vec2 { 0.000004f, 1.0f - 0.671870f },
-            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
-            glm::vec2 { 0.000103f, 1.0f - 0.336048f },
-            glm::vec2 { 0.336024f, 1.0f - 0.671877f },
-            glm::vec2 { 0.335973f, 1.0f - 0.335903f },
-            glm::vec2 { 0.667969f, 1.0f - 0.671889f },
-            glm::vec2 { 1.000004f, 1.0f - 0.671847f },
-            glm::vec2 { 0.667979f, 1.0f - 0.335851f },
+            // 1
+            glm::vec2 { 0.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 0.0f },
+            //
+            glm::vec2 { 0.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 0.0f },
+            glm::vec2 { 0.0f, 0.0f },
+            // 2
+            glm::vec2 { 1.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 0.0f },
+            //
+            glm::vec2 { 1.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 0.0f },
+            glm::vec2 { 1.0f / 3.0f, 0.0f },
+            // 3
+            glm::vec2 { 2.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f, 0.0f },
+            //
+            glm::vec2 { 2.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f, 0.0f },
+            glm::vec2 { 2.0f / 3.0f, 0.0f },
+            // 4
+            glm::vec2 { 0.0f, 2.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 2.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 1.0f / 3.0f },
+            //
+            glm::vec2 { 0.0f, 2.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 0.0f, 1.0f / 3.0f },
+            // 5
+            glm::vec2 { 1.0f / 3.0f, 2.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 2.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 1.0f / 3.0f },
+            //
+            glm::vec2 { 1.0f / 3.0f, 2.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 1.0f / 3.0f, 1.0f / 3.0f },
+            // 6
+            glm::vec2 { 1.0f, 1.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 1.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 2.0f / 3.0f },
+            //
+            glm::vec2 { 1.0f, 1.0f / 3.0f },
+            glm::vec2 { 2.0f / 3.0f, 2.0f / 3.0f },
+            glm::vec2 { 1.0f, 2.0f / 3.0f },
         };
 
         // Generates a buffer for the vertices
@@ -233,7 +261,7 @@ public:
     {
         // Rotate so that the artifacts are visible
         this->object_transform = Transform {};
-        this->object_transform.with_rotation_euler(glm::vec3 { 0.0f, 0.0f, glm::radians(180.0f) });
+        this->object_transform.with_rotation_euler(glm::vec3 { 0.0f, 0.0f, 0.0f });
     }
 
     void initialize_vp_matrix(GLFWwindow* window)
@@ -258,8 +286,16 @@ public:
     {
         (void)window;
 
+        // Update the dice.
+        const auto now { std::chrono::steady_clock::now() };
+        const std::chrono::duration<float> delta_time { now - this->last_draw };
+        const glm::quat rotation { glm::vec3 { 0.0f, delta_time.count() * (glm::pi<float>() / 4.0f), 0.0f } }; // 45deg each second
+        this->object_transform.with_rotation(this->object_transform.rotation() * rotation);
+        this->last_draw = now;
+
         // Enable the depth test.
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
 
         // Set the background color
         glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -292,13 +328,14 @@ public:
         }
 
         // Renders primitives from array data
-        glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+        glDrawArrays(GL_TRIANGLES, 0, 2 * 6 * 3);
 
         // Unbind the texture.
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Disable the depth test after rendering.
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
     }
 
     void on_key_change(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -322,6 +359,7 @@ public:
 
 private:
     bool use_dice_texture;
+    std::chrono::time_point<std::chrono::steady_clock> last_draw;
 
     GLuint vertex_array_object; // OpenGL ID for the vertex array object
     GLuint position_vertex_buffer; // OpenGL ID for the position vbo
