@@ -19,21 +19,11 @@ struct Triangle {
     glm::vec3 v1;
     glm::vec3 v2;
     glm::vec3 v3;
-    glm::vec3 n; // Normal for the triangle, if available
-    glm::vec2 uv1; // UV coordinate for vertex 1, if available
-    glm::vec2 uv2; // UV coordinate for vertex 2, if available
-    glm::vec2 uv3; // UV coordinate for vertex 3, if available
-    glm::vec3 color; // Color for the triangle, if available
 
     Triangle()
         : v1(0.0f)
         , v2(0.0f)
         , v3(0.0f)
-        , n(0.0f)
-        , uv1(0.0f)
-        , uv2(0.0f)
-        , uv3(0.0f)
-        , color(255.0f, 0.f, 0.f)
     {
     }
 };
@@ -44,10 +34,8 @@ inline bool load_obj(
     std::vector<Triangle>& out_triangles)
 {
     // Temporary storage for OBJ data
-    std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+    std::vector<unsigned int> vertexIndices;
     std::vector<glm::vec3> temp_vertices;
-    std::vector<glm::vec2> temp_uvs;
-    std::vector<glm::vec3> temp_normals;
 
     // Open the OBJ file
     FILE* file = fopen(path.string().c_str(), "r");
@@ -70,31 +58,17 @@ inline bool load_obj(
             glm::vec3 vertex;
             fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
             temp_vertices.push_back(vertex);
-        }
-        // Parse texture coordinates
-        else if (strcmp(lineHeader, "#") == 0) {
+        } else if (strcmp(lineHeader, "#") == 0) {
             continue;
-        }
-        // Parse texture coordinates
-        else if (strcmp(lineHeader, "vt") == 0) {
-            glm::vec2 uv;
-            fscanf(file, "%f %f\n", &uv.x, &uv.y);
-            temp_uvs.push_back(uv);
-        }
-        // Parse normals
-        else if (strcmp(lineHeader, "vn") == 0) {
-            glm::vec3 normal;
-            fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-            temp_normals.push_back(normal);
         }
         // Parse faces
         else if (strcmp(lineHeader, "f") == 0) {
             unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
-                &vertexIndex[0], &uvIndex[0], &normalIndex[0],
-                &vertexIndex[1], &uvIndex[1], &normalIndex[1],
-                &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-            if (matches != 9) {
+            int matches = fscanf(file, "%d %d %d\n",
+                &vertexIndex[0],
+                &vertexIndex[1],
+                &vertexIndex[2]);
+            if (matches != 3) {
                 printf("File can't be read by our simple parser: ( Try exporting with other options) \n");
                 return false;
             }
@@ -102,12 +76,6 @@ inline bool load_obj(
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
             vertexIndices.push_back(vertexIndex[2]);
-            uvIndices.push_back(uvIndex[0]);
-            uvIndices.push_back(uvIndex[1]);
-            uvIndices.push_back(uvIndex[2]);
-            normalIndices.push_back(normalIndex[0]);
-            normalIndices.push_back(normalIndex[1]);
-            normalIndices.push_back(normalIndex[2]);
         }
     }
 
@@ -134,17 +102,6 @@ inline bool load_obj(
         tri.v1 = (temp_vertices[vertexIndices[i] - 1] - center) * scale;
         tri.v2 = (temp_vertices[vertexIndices[i + 1] - 1] - center) * scale;
         tri.v3 = (temp_vertices[vertexIndices[i + 2] - 1] - center) * scale;
-
-        // UV coordinates
-        tri.uv1 = temp_uvs[uvIndices[i] - 1];
-        tri.uv2 = temp_uvs[uvIndices[i + 1] - 1];
-        tri.uv3 = temp_uvs[uvIndices[i + 2] - 1];
-
-        // Normals (we'll use the first normal for simplicity)
-        tri.n = temp_normals[normalIndices[i] - 1];
-
-        // Default color (not provided by OBJ file, so we use white)
-        tri.color = glm::vec3(1.0f, 1.0f, 1.0f);
 
         // Add the triangle to the output list
         out_triangles.push_back(tri);
