@@ -27,7 +27,7 @@ public:
         : framebuffer(1, 1, 1)
         , triangles()
     {
-        auto path = to_resource_path("cube.obj");
+        auto path = to_resource_path("bunny.obj");
         bool success = loadOBJ(path, triangles);
         if(!success) {
             std::cerr << "Failed to load OBJ file at " << path << std::endl;
@@ -53,9 +53,6 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         Scanline::draw(framebuffer, triangles);
-
-        Image* framebuffer2 = &framebuffer;
-
 
         // create a texture for pixel data
         GLuint texture;

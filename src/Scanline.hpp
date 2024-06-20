@@ -78,11 +78,13 @@ public:
             }
 
             for (int x = xStart; x <= xEnd; ++x) {
-                image.setPixelChannel(x, row, 0, triangle.color.x); // Set the red channel of the pixel.
-                image.setPixelChannel(x, row, 1, triangle.color.y); // Set the green channel of the pixel.
-                image.setPixelChannel(x, row, 2, triangle.color.z); // Set the blue channel of the pixel.
+                image.setPixelChannel(x, row, 0, 255.0f); // Set the red channel of the pixel.
+                image.setPixelChannel(x, row, 1, 0.f); // Set the green channel of the pixel.
+                image.setPixelChannel(x, row, 2, 0.f); // Set the blue channel of the pixel.
             }
+
         }
+
     }
 
     static void draw(Image& image, const std::vector<Triangle>& triangles) {

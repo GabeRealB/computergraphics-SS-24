@@ -23,7 +23,7 @@ struct Triangle {
     Triangle()
         : v1(0.0f), v2(0.0f), v3(0.0f),
         n(0.0f), uv1(0.0f), uv2(0.0f), uv3(0.0f),
-        color(1.0f, 0.f, 0.f) {}  // Default color is white
+        color(255.0f, 0.f, 0.f) {}
 };
 
 // Function to load an OBJ file and extract triangles
