@@ -6,11 +6,13 @@
 #ifdef _MSVC_VER
 #pragma warning(pop)
 #endif
-#include "ObjectLoader.hpp"
-#include <optional>
-#include <vector>
-#include <thread>
 #include <algorithm>
+#include <array>
+#include <optional>
+#include <thread>
+#include <vector>
+
+#include "ObjectLoader.hpp"
 
 class Scanline {
 public:
@@ -58,7 +60,8 @@ public:
         return intersections;
     }
 
-    static void drawRow(Image& image, const std::vector<Triangle>& triangles, int row) {
+    static void drawRow(Image& image, const std::vector<Triangle>& triangles, int row)
+    {
         float glPixelHeight = 2.0f / image.height(); // Calculate the height of each pixel in OpenGL coordinates.
         float yPos = -1.0f + (row + 0.5f) * glPixelHeight; // Calculate the y position of the current row in OpenGL coordinates.
 
@@ -82,12 +85,11 @@ public:
                 image.setPixelChannel(x, row, 1, 0.f); // Set the green channel of the pixel.
                 image.setPixelChannel(x, row, 2, 0.f); // Set the blue channel of the pixel.
             }
-
         }
-
     }
 
-    static void draw(Image& image, const std::vector<Triangle>& triangles) {
+    static void draw(Image& image, const std::vector<Triangle>& triangles)
+    {
         const int numThreads = std::thread::hardware_concurrency();
         std::vector<std::thread> threads;
 

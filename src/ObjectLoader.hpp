@@ -1,36 +1,48 @@
 #ifndef OBJLOADER_HPP
 #define OBJLOADER_HPP
 
-#include <vector>
-#include <string>
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <glm/glm.hpp>
-#include <algorithm>
+#include <string>
+#include <vector>
 
 // Triangle structure to hold vertices, normals, UVs, and color
 struct Triangle {
     glm::vec3 v1;
     glm::vec3 v2;
     glm::vec3 v3;
-    glm::vec3 n;  // Normal for the triangle, if available
-    glm::vec2 uv1;  // UV coordinate for vertex 1, if available
-    glm::vec2 uv2;  // UV coordinate for vertex 2, if available
-    glm::vec2 uv3;  // UV coordinate for vertex 3, if available
+    glm::vec3 n; // Normal for the triangle, if available
+    glm::vec2 uv1; // UV coordinate for vertex 1, if available
+    glm::vec2 uv2; // UV coordinate for vertex 2, if available
+    glm::vec2 uv3; // UV coordinate for vertex 3, if available
     glm::vec3 color; // Color for the triangle, if available
 
     Triangle()
-        : v1(0.0f), v2(0.0f), v3(0.0f),
-        n(0.0f), uv1(0.0f), uv2(0.0f), uv3(0.0f),
-        color(255.0f, 0.f, 0.f) {}
+        : v1(0.0f)
+        , v2(0.0f)
+        , v3(0.0f)
+        , n(0.0f)
+        , uv1(0.0f)
+        , uv2(0.0f)
+        , uv3(0.0f)
+        , color(255.0f, 0.f, 0.f)
+    {
+    }
 };
 
 // Function to load an OBJ file and extract triangles
-bool loadOBJ(
-    std::filesystem::path path,
-    std::vector<Triangle>& out_triangles
-) {
+inline bool load_obj(
+    const std::filesystem::path& path,
+    std::vector<Triangle>& out_triangles)
+{
     // Temporary storage for OBJ data
     std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
     std::vector<glm::vec3> temp_vertices;
@@ -48,8 +60,10 @@ bool loadOBJ(
     while (1) {
         char lineHeader[128];
         int res = fscanf(file, "%s", lineHeader);
-        if (res == EOF)
+        if (res == EOF) {
+            fclose(file);
             break;
+        }
 
         // Parse vertices
         if (strcmp(lineHeader, "v") == 0) {
@@ -138,5 +152,9 @@ bool loadOBJ(
 
     return true;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif // OBJLOADER_HPP

@@ -28,8 +28,8 @@ public:
         , triangles()
     {
         auto path = to_resource_path("bunny.obj");
-        bool success = loadOBJ(path, triangles);
-        if(!success) {
+        bool success = load_obj(path, triangles);
+        if (!success) {
             std::cerr << "Failed to load OBJ file at " << path << std::endl;
         }
     }
