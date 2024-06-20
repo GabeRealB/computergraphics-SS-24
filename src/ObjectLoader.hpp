@@ -45,7 +45,9 @@ inline bool load_obj(
     }
 
     // Read the file line by line
+    int line = 0;
     while (1) {
+        line++;
         char lineHeader[128];
         int res = fscanf(file, "%s", lineHeader);
         if (res == EOF) {
@@ -63,13 +65,15 @@ inline bool load_obj(
         }
         // Parse faces
         else if (strcmp(lineHeader, "f") == 0) {
-            unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+            unsigned int vertexIndex[3];
             int matches = fscanf(file, "%d %d %d\n",
                 &vertexIndex[0],
                 &vertexIndex[1],
                 &vertexIndex[2]);
             if (matches != 3) {
                 printf("File can't be read by our simple parser: ( Try exporting with other options) \n");
+                // print line
+                printf("Line: %d\n", line);
                 return false;
             }
             // Store indices
@@ -94,6 +98,7 @@ inline bool load_obj(
     float max_size = std::max(std::max(size.x, size.y), size.z);
     float scale = 2.0f / max_size; // Scale to fit in [-1, 1]
 
+
     // Process the data to create Triangle structures
     for (unsigned int i = 0; i < vertexIndices.size(); i += 3) {
         Triangle tri;
@@ -103,7 +108,6 @@ inline bool load_obj(
         tri.v2 = (temp_vertices[vertexIndices[i + 1] - 1] - center) * scale;
         tri.v3 = (temp_vertices[vertexIndices[i + 2] - 1] - center) * scale;
 
-        // Add the triangle to the output list
         out_triangles.push_back(tri);
     }
 
